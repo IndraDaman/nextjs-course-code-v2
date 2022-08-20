@@ -2,8 +2,17 @@ import Layout from "../../components/layout/Layout";
 import NewMeetupForm from "../../components/meetups/NewMeetupForm";
 
 function NewMeetupPage() {
-  function addMeetupHandler(enterMeetupData) {
-    console.log(enterMeetupData);
+ async function addMeetupHandler(enterMeetupData) {
+    //console.log(enterMeetupData);
+    const response=await fetch('/api/new-meetup',{
+      method:"POST",
+      body:JSON.stringify(enterMeetupData),
+      headers:{
+          "Content-Type": "application/json"
+      }
+    });
+    const data=await response.json();
+    console.log(data);
   }
   return (
     <Layout>
