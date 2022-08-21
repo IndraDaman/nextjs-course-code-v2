@@ -1,4 +1,5 @@
-import { useEffect,useState } from "react";
+import { MongoClient } from "mongodb";
+import { useEffect, useState } from "react";
 import Layout from "../components/layout/Layout";
 import MeetupList from "../components/meetups/MeetupList";
 
@@ -22,10 +23,10 @@ const DUMMY_MEETUPS = [
 ];
 
 function HomePage(props) {
-    // const [loaderMeetups,setLoaderMeetups] = useState();
-    // useEffect(()=>{
-    //     setLoaderMeetups(DUMMY_MEETUPS);
-    // },[]);
+  // const [loaderMeetups,setLoaderMeetups] = useState();
+  // useEffect(()=>{
+  //     setLoaderMeetups(DUMMY_MEETUPS);
+  // },[]);
   return (
     <Layout>
       <MeetupList meetups={props.meetups} />
@@ -43,13 +44,27 @@ function HomePage(props) {
 //     }
 // }
 
-export async function getStaticProps(){
-    //fetch data from api
-    return {
-        props:{
-            meetups:DUMMY_MEETUPS
-        },
-        revalidate:1
-    }
+export async function getStaticProps() {
+  //fetch data from api
+  const client = await MongoClient.connect(
+    "mongodb+srv://Indradaman:wAVBNbvn17L0CQNe@cluster0.ygmucxm.mongodb.net/nextjsprojectv2?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupCollection = db.collection("meetups");
+  const meetups=await meetupCollection.find().toArray();
+  client.close();
+  return {
+    props: {
+      meetups: meetups.map(meetup=>({
+        title:meetup.title,
+        image:meetup.image,
+        address:meetup.address,
+        description:meetup.description,
+        id:meetup._id.toString(),
+      })),
+    },
+    revalidate: 1,
+  };
 }
 export default HomePage;
